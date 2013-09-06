@@ -1,0 +1,14 @@
+{
+    "name": "codnet/phprasty-grid",
+    "type": "library","version":"1.0.0",
+    "description": "Grid components for phprasty",
+    "keywords": ["php", "framework", "components", "forms", "codnet"],
+    "homepage": "http://www.codnet.com.ar",
+    "license": "GPL v2",
+    "authors": [
+        {"name": "Bernardo Iribarne", "email": "ber.iribarne@gmail.com"}
+    ],
+    "autoload": {
+        "psr-0": { "Rasty\\Grid": "src/main/php" }
+    }
+}

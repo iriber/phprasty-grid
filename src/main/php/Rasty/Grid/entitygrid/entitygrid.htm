@@ -1,0 +1,139 @@
+<!-- BEGIN:main -->
+<style>
+.pagination_btn{
+	cursor: pointer; 
+	display: inline;
+}
+
+</style>
+
+<div id="search_results_{gridId}">
+
+<div class="rich_options_content">
+	<div id="rich_option_item_{gridId}" class="rich_options">
+		<!-- BEGIN:barra_opcion -->
+		<a title="{title}" href="" onclick="javascript:{functionCallback}; return false" >
+		<div class="rich_option_item">
+				<div class="rich_option_item_{divClass}">	
+				<!-- BEGIN: label_opcion-->
+				<span> </span>
+				<!-- END: label_opcion-->
+				</div>
+		</div>
+		</a>
+		<!-- END:barra_opcion -->				
+	</div>
+</div>
+
+<div class="grid_pages" id="paginator_{gridId}">
+	<div style="float:right;">
+	
+		<!-- BEGIN: firstPage -->
+		<div class="pagination_btn">
+		<a href="#" title="{lbl_first}" onclick="{paginationCallback}({firstPage});return false;">&laquo;</a>
+		</div>
+		<!-- END: firstPage -->
+		
+		<!-- BEGIN: previousPage -->
+		<div class="pagination_btn">
+		<a href="#" title="{lbl_previous}" onclick="{paginationCallback}({previousPage});return false;">&larr;</a>
+		</div>
+		<!-- END: previousPage -->
+		
+		<span><b>{rangeFrom}</b>&ndash;<b>{rangeTo}</b> {rangeOf} <b>{totalRows}</b></span>
+		
+		<!-- BEGIN: nextPage -->
+		<div class="pagination_btn">
+		<a href="#" title="{lbl_next}" onclick="{paginationCallback}({nextPage});return false;">&rarr;</a>
+		<!-- END: nextPage -->
+		
+		<!-- BEGIN: lastPage -->
+		<div class="pagination_btn">
+		<a href="#" title="{lbl_last}" onclick="{paginationCallback}({lastPage});return false;">&raquo;</a>
+		</div>
+		<!-- END: lastPage -->
+	</div>
+</div>
+
+<div style="float: left; width: 100%"> 
+
+<div class="block">
+
+<table border="1">
+	<thead>
+	<tr style="white-space: nowrap;">
+		<!-- BEGIN: TH_CHECKBOX -->
+		<th rowspan={group_levels}> <input id="checkAll_{gridId}" onclick="checkTodos('{gridId}',this.id,'search_results_{gridId}');" name="checkAll_{gridId}" type="checkbox" /></th>
+		<!-- END: TH_CHECKBOX -->
+		<!-- BEGIN: TH -->		
+			
+			<!-- BEGIN: SIMPLE -->
+			<th rowspan={group_levels}>
+				{label}
+				<a title="{lbl_order_by} {orderLabel} - {orderTypeAsc}" href="#" onclick="javascript: {sortCallback}( '{orderField}', '{orderTypeAsc}'); return false;">
+					&uarr;
+				</a>
+				<a title="{lbl_order_by} {orderLabel} - {orderTypeDesc}" href="#" onclick="javascript: {sortCallback}( '{orderField}', '{orderTypeDesc}'); return false;">
+					&darr;	
+				</a>
+			</th>
+			<!-- END: SIMPLE -->
+			
+			<!-- BEGIN: GROUP -->		
+			<th colspan={group_size}>
+				{group_label}
+				<a title="{lbl_order_by} {orderLabel} - {orderTypeAsc}" href="#" onclick="javascript: {sortCallback}( '{orderField}', '{orderTypeAsc}'); return false;">
+					&uarr;
+				</a>
+				<a title="{lbl_order_by} {orderLabel} - {orderTypeDesc}" href="#" onclick="javascript: {sortCallback}( '{orderField}', '{orderTypeDesc}'); return false;">
+					&darr;					
+				</a>
+			</th>
+			<!-- END: GROUP -->
+			
+		<!-- END: TH -->
+	</tr>
+	<!-- BEGIN: SUB_HEADER -->
+	<tr style="white-space: nowrap;">
+		<!-- BEGIN: TH -->		
+		<th>
+			{label}
+			<a title="{lbl_order_by} {orderLabel} - {orderTypeAsc}"  href="#" onclick="javascript: {sortCallback}( '{orderField}', '{orderTypeAsc}'); return false;">
+				&uarr;
+			</a>
+			<a title="{lbl_order_by} {orderLabel} - {orderTypeDesc}"  href="#" onclick="javascript: {sortCallback}( '{orderField}', '{orderTypeDesc}'); return false;">
+				&darr;
+			</a>
+		</th>
+		<!-- END: TH -->
+	</tr>	
+	<!-- END: SUB_HEADER -->
+	
+	</thead>
+	
+	<!-- BEGIN: row -->
+	
+	<tbody class="{rowClass}" id="row_{gridId}_{itemId}">
+	<tr style="position:relative; cursor: pointer;" class="{row_class}" >
+	
+		<!-- BEGIN:checkbox -->
+		<td><input onclick="resetOptions('{gridId}', 'row_{gridId}_{itemId}', this.checked );" type="checkbox" name="item_{gridId}_{itemId}"  id="item_{gridId}_{itemId}" value="{itemId}" ></input></td>
+		<!-- END:checkbox -->
+		<!-- BEGIN: column -->
+		<td style="{column_style}" class="{column_class}" onclick="{selectRowCallback}( '{itemId}', 'row_{gridId}_{itemId}', 'item_{gridId}_{itemId}' );">{value}</td>
+		<!-- END: column -->
+	</tr>
+	</tbody>
+	<!-- END: row -->
+</table>
+
+<!-- BEGIN: footer -->
+<div class='tablaSummaryFooter'>{footer}</div>
+<!-- END: footer -->
+
+
+
+</div>
+</div>
+</div>
+<!-- END:main -->

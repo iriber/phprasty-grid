@@ -1,0 +1,9 @@
+<rasty specificationClass="Rasty\Grid\entitygrid\EntityGrid" templateLocation="entitygrid.htm">
+
+	<param name="modelClazz" value="post:model" />
+	<param name="sortCallback" value="post:sortCallback" />
+	<param name="paginationCallback" value="post:paginationCallback" />
+	<param name="selectRowCallback" value="post:selectRowCallback" />
+	
+
+</rasty>

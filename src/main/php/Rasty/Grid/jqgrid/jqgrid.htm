@@ -1,0 +1,53 @@
+<!-- BEGIN: main-->
+
+<script src="{COMPONENT_PATH}/js/jquery.layout.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/js/i18n/grid.locale-en.js" type="text/javascript"></script>
+<script type="text/javascript">
+	$.jgrid.no_legacy_api = true;
+	$.jgrid.useJSON = true;
+</script>
+<script src="{COMPONENT_PATH}/plugins/ui.multiselect.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/plugins/jquery.tablednd.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/plugins/jquery.contextmenu.js" type="text/javascript"></script>
+
+<script src="{COMPONENT_PATH}/js/grid.base.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/js/grid.common.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/js/grid.formedit.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/js/grid.inlinedit.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/js/grid.celledit.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/js/grid.subgrid.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/js/grid.treegrid.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/js/grid.grouping.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/js/grid.custom.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/js/grid.tbltogrid.js" type="text/javascript"></script>
+
+<script src="{COMPONENT_PATH}/js/grid.import.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/js/JsonXml.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/js/grid.jqueryui.js" type="text/javascript"></script>
+<script src="{COMPONENT_PATH}/js/grid.filter.js" type="text/javascript"></script>
+        
+<link rel="stylesheet" type="text/css" href="{COMPONENT_PATH}/css/ui.multiselect.css" />
+<link rel="stylesheet" type="text/css" href="{COMPONENT_PATH}/css/ui.jqgrid.css" />
+
+<table id="{componentId}"></table> <div id="{componentId}Pager"></div> 
+
+<script type="text/javascript">
+
+jQuery("#{componentId}").jqGrid({ 
+	url:'{WEB_PATH}/{componentType}.cmp?method=getItems&requestClass={requestClass}&requestMethod={requestMethod}&requestMethodTotal={requestMethodTotal}&indexColumnId={indexColumnId}',
+	datatype: "json", 
+	colNames:{colNames}, 
+	colModel: {colModel}, 
+	rowNum:{rowNum}, 
+	rowList:{rowList}, 
+	pager: '#{componentId}Pager', 
+	sortname: '{sortName}', 
+	viewrecords: true, 
+	sortorder: "{sortOrder}",
+	height: "{height}" , 
+	caption:"{caption}" });
+
+jQuery("#{componentId}").jqGrid('navGrid','#{componentId}Pager',{edit:false,add:false,del:false}); 
+	
+</script>
+<!-- END: main-->

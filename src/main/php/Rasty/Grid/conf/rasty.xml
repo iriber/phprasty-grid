@@ -1,0 +1,7 @@
+<rasty-application>
+
+	<!-- declaración de los componentes -->
+	<component name="EntityGrid" location="entitygrid" />
+	<component name="Filter" location="filter" />
+	
+</rasty-application>
