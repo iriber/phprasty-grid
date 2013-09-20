@@ -2,6 +2,8 @@
 namespace Rasty\Grid\entitygrid;
 
 use Rasty\Grid\entitygrid\model\GridActionModel;
+use Rasty\factory\ComponentConfig;
+use Rasty\factory\ComponentFactory;
 
 use Rasty\components\RastyComponent;
 use Rasty\utils\RastyUtils;
@@ -11,6 +13,11 @@ use Rasty\utils\XTemplate;
 use Rasty\Grid\entitygrid\model\EntityGridModel;
 use Rasty\i18n\Locale;
 use Rasty\app\RastyMapHelper;
+
+use Rasty\Menu\menu\model\MenuGroup;
+use Rasty\Menu\menu\model\MenuOption;
+use Rasty\Menu\menu\model\MenuActionOption;
+
 /**
  * componente grilla para entities.
  *
@@ -373,61 +380,13 @@ class EntityGrid extends RastyComponent{
         if( $this->hasCheckBoxes() )
 			$xtpl->parse('main.row.checkbox');
 			
+        
+        $this->renderRowActions($item, $xtpl);
+        
         $xtpl->parse('main.row');
     }
 
-    protected function renderRowAction(XTemplate $xtpl, GridActionModel $oActionModel, $itemId) {
-
-        $gridId = $this->getId();
-
-        $ds_action = $oActionModel->getAction();
-        $bl_targetblank = $oActionModel->getOnTargetblank();
-        $bl_allPageItems = $oActionModel->getHasAllPageItems();
-
-        $getSelected = "";
-        if( $bl_allPageItems )
-        	$getSelected = "getAllPageItemsSelected_$gridId()";
-        else
-        	$getSelected = "getSelected_$gridId()";
-        
-        if ($oActionModel->getOnPopUp()) {
-            $title = $oActionModel->getLabel();
-            $height = $oActionModel->getHeightPopup();
-            $width = $oActionModel->getWidthPopup();
-            $ds_callback = "loadPopup_$gridId('doAction?action=$ds_action&id=' +  $getSelected, '$title', $height, $width )";
-        } else {
-
-            $ds_callback = $oActionModel->getCallback();
-            if (empty($ds_callback)){
-            	if (!$bl_targetblank){	
-                	$ds_callback = "loadContent('doAction?action=$ds_action&id=' + $getSelected )";
-            	}
-            	else{	
-                	$ds_callback = "loadTargetBlank('doAction?action=$ds_action&id=' + $getSelected )";
-            	}
-            }
-        }
-        $message = $oActionModel->getConfirmationMsg();
-        if (!empty($message)) {
-
-            $confirm= Locale::localize("entitygrid.confirm_delete_title");
-        	$ds_callback = " confirm_action( '$message' , '$confirm',  function(){ $ds_callback } );";
-        }
-
-        if (!$oActionModel->getIsMultiple()) {
-            $ds_callback = " checkOnlyOneSelected_$gridId( function(){ $ds_callback } );  ";
-        }
-
-        $xtpl->assign('divClass', $oActionModel->getStyle());
-        $xtpl->assign('functionCallback', $ds_callback);
-        $xtpl->assign('title', $oActionModel->getLabel());
-
-        $action = explode(" ", $oActionModel->getLabel());
-        $xtpl->assign('label', $action[0]);
-        $xtpl->parse('main.barra_opcion.label_opcion');
-
-        $xtpl->parse('main.barra_opcion');
-    }
+    
     
 
 	public function hasCheckBoxes()
@@ -499,12 +458,44 @@ class EntityGrid extends RastyComponent{
         else
             $itemId = "";
 
+        
+        //TODO armo un menú con las actions.
+        $menuGroup = new MenuGroup();
+        
         foreach ($actions as $oActionModel) {
 
-            $this->renderRowAction($xtpl, $oActionModel, $itemId);
+        	$menuOption = new MenuOption();
+        	$menuOption->setLabel( $oActionModel->getLabel() );
+        	$menuOption->setPageName( "TurnosHome" );
+        	$menuOption->setImageSource( $this->getWebPath() . "css/images/turnos_48.png" );
+        	$menuGroup->addMenuOption( $menuOption );
+        	
+            //$this->renderRowAction($xtpl, $oActionModel, $itemId);
         }
         
+        //generamos el menu a partir del type.
+	    $componentConfig = new ComponentConfig();
+	    $componentConfig->setId( "menu_$itemId" );
+		$componentConfig->setType( "Menu" );
+		
+	    $menu = ComponentFactory::buildByType($componentConfig, $this);
+        $menu->addMenuGroup($menuGroup);
+        $xtpl->assign("actions", $menu->render());
+        
         $xtpl->parse("main.row.row_actions");
+    }
+    
+    protected function renderRowAction(XTemplate $xtpl, GridActionModel $oActionModel, $itemId) {
+    
+    	$gridId = $this->getId();
+    
+    	$ds_action = $oActionModel->getAction();
+    	
+    	$bl_targetblank = $oActionModel->getOnTargetblank();
+    
+    	$xtpl->assign('action', $ds_action);
+    
+    	$xtpl->parse('main.row.row_actions.row_action');
     }
     
 	public function getService()
