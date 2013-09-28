@@ -7,6 +7,10 @@ use Rasty\components\RastyComponent;
 use Rasty\utils\RastyUtils;
 use Rasty\utils\XTemplate;
 use Rasty\utils\ReflectionUtils;
+use Rasty\utils\Logger;
+
+use Rasty\Forms\form\Form;
+
 /**
  * componente filter.
  * 
@@ -18,7 +22,7 @@ use Rasty\utils\ReflectionUtils;
  * @since 22-03-2013
  *
  */
-abstract class Filter extends RastyComponent{
+abstract class Filter extends Form{
 
 	/**
 	 * legend para el fieldset.
@@ -65,20 +69,48 @@ abstract class Filter extends RastyComponent{
 	 */
 	private $selectRowCallback;
 	
-
+	/**
+	 * uicriteria asociado al filter.
+	 * @var UICriteria
+	 */
 	private $criteria;
+
 	
 	public function __construct(){
 
+		parent::__construct();
+		
+		$this->setMethod("POST");
+		$this->setSelectRowCallback("showMenuRow");
+		$this->setLabelSubmit( $this->localize("filter.buscar"));
 		
 	}
 	
 	protected function initDefaults(){
 	
-		if( empty( $this->labelSubmit ) ){
-			$this->setLabelSubmit( $this->localize("filter.buscar"));
+		
+	}
+	
+	public function fill(){
+		
+		foreach ($this->getProperties() as $property) {
+			
+			//$value = RastyUtils::getParamPOST($property);
+			Logger::log("fill property $property", __CLASS__);
+			$input = $this->getComponentById($property);
+			$value = $input->getPopulatedValue( $this->getMethod() );			
+			ReflectionUtils::doSetter( $this->getCriteria(), $property, $value );
+			
 		}
 		
+		//le agregramos el order y la paginación.
+		$orderBy = RastyUtils::getParamPOST("orderBy");
+		$orderByType = RastyUtils::getParamPOST("orderByType");
+		if(!empty($orderBy))
+			$this->getCriteria()->addOrder($orderBy, $orderByType);
+		
+		$page = RastyUtils::getParamPOST("page");
+		$this->getCriteria()->setPage($page);
 		
 	}
 	
@@ -87,6 +119,8 @@ abstract class Filter extends RastyComponent{
 		$this->initDefaults();
 		
 		$xtpl->assign("model",  $this->getGridModelClazz() );
+
+		$xtpl->assign("filter",  $this->getType() );
 		
 		$xtpl->assign("legend", $this->getLegend() );
 
@@ -96,7 +130,10 @@ abstract class Filter extends RastyComponent{
 		
 		$xtpl->assign("resultDiv", $this->getResultDiv() );
 		
-		$xtpl->assign("selectRowCallback", $this->getSelectRowCallback() );
+		$selectCallback = $this->getSelectRowCallback();
+		if(empty($selectCallback))
+			$selectCallback = "showMenuRow";
+		$xtpl->assign("selectRowCallback", $selectCallback  );
 		
 	}
 
@@ -106,10 +143,11 @@ abstract class Filter extends RastyComponent{
 		
 	}
 
+	/*
 	public function save(){
 	
 		return $this->getCriteria()->save();
-	}
+	}*/
 	
 	public function getLegend()
 	{
@@ -152,7 +190,9 @@ abstract class Filter extends RastyComponent{
 	    
 	    $this->criteria = ReflectionUtils::newInstance( $uicriteriaClazz );
 	    
-	    $this->criteria->fillFromSaved();
+	    //FIXME $this->criteria->fillFromSaved();
+	    
+	    
 	}
 	
 
@@ -190,4 +230,5 @@ abstract class Filter extends RastyComponent{
 	{
 	    $this->criteria = $criteria;
 	}
+	
 }

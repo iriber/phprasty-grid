@@ -33,19 +33,12 @@ class UICriteria {
 	 * @var unknown_type
 	 */
 	private $rowPerPage;
-
-	/**
-	 * propiedades para popular.
-	 * @var array
-	 */
-	private $properties;
 	
 	
 	public function __construct(){
 		$this->orders = array();
 		$this->rowPerPage=20;
 		$this->page=1;
-		$this->properties = array();
 		
 	}
 	
@@ -75,28 +68,6 @@ class UICriteria {
 	    $this->page = $page;
 	}
 	
-	public function fill(){
-	
-		$page = RastyUtils::getParamPOST("page",1);
-    	$orderBy = RastyUtils::getParamPOST("orderBy");
-    	$orderByType = RastyUtils::getParamPOST("orderByType");
-    	
-    	$this->setPage($page);
-    	
-    	if( !empty($orderBy) )
-    		$this->addOrder( $orderBy, $orderByType );
-    	
-    		
-		foreach ($this->properties as $property) {
-			
-			//$value = RastyUtils::getParamPOST($property);
-			
-			$value = RastyUtils::getParamPOST($property);			
-			ReflectionUtils::doSetter( $this, $property, $value );
-			
-		}
-	}
-
 	public function getRowPerPage()
 	{
 	    return $this->rowPerPage;
@@ -106,93 +77,5 @@ class UICriteria {
 	{
 	    $this->rowPerPage = $rowPerPage;
 	}
-
-	public function addProperty($name){
-	
-		$this->properties[] = $name;			
-	}
-	
-	public function getProperties()
-	{
-	    return $this->properties;
-	}
-
-	public function setProperties($properties)
-	{
-	    $this->properties = $properties;
-	}
-	
 		
-	/**
-	 * llena el filtro con los valores guardados en sesión.
-	 */
-	public function fillFromSaved(){
-	
-		//$page = RastyUtils::getParamSESSION("page",1);
-    	//$this->setPage($page);
-
-		//Logger::log("begin fillFromSaved");
-		
-		$orderBy = $this->getSavedProperty("orderBy");
-    	$orderByType = $this->getSavedProperty("orderByType");
-    	
-    	if( !empty($orderBy) )
-    		$this->addOrder( $orderBy, $orderByType );
-    	
-		foreach ($this->properties as $property) {
-			
-			$value = $this->getSavedProperty($property);			
-			ReflectionUtils::doSetter( $this, $property, $value );
-			
-		}
-	}
-
-	
-	/**
-	 * setea en sesión los valores del filtro.
-	 */
-	public function save(){
-		
-		//primero limpiamos la búsqueda anterior.
-		$this->cleanSavedProperties();
-		
-		//Logger::log("begin save");
-		foreach ($this->properties as $property) {
-
-			$value = ReflectionUtils::doGetter( $this, $property );
-
-			if( !empty($value) ){
-					
-				$this->saveProperty($property, $value);
-					
-			}
-		}
-		
-	}
-	public function saveProperty($name, $value){
-		
-		$nametosave = str_replace('.', '_', $name);
-		$_SESSION[get_class($this)][$nametosave] = $value;
-		
-		//Logger::log("savedProperty($name): $nametosave => $value to " . get_class($this));
-		
-	}
-	
-	public function getSavedProperty($name){
-		
-		$nametosave = str_replace('.', '_', $name);
-		$value = (isset($_SESSION[ get_class($this) ][$nametosave] ))?$_SESSION[get_class($this)][$nametosave] :null;
-		
-		//Logger::log("getSavedProperty($name): $nametosave => $value from " . get_class($this));
-		
-		return $value;
-		
-	}
-	
-	public function cleanSavedProperties(){
-		//Logger::log("cleanSavedProperties from " . get_class($this));
-		
-		unset( $_SESSION[ get_class($this) ] );
-	}
-	
 }

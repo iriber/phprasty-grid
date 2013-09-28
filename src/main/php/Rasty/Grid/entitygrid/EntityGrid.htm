@@ -6,7 +6,108 @@
 }
 
 </style>
+<script>
+function getMousePosition(event) {
 
+	//event = window.event || arguments.callee.caller.arguments[0];
+	/*
+	var _x;
+	var _y;
+
+	_x = event.clientX + document.body.scrollLeft;
+	_y = event.clientY + document.body.scrollTop;
+	
+	posX = event.screenX;
+	posY = event.screenY;
+*/
+
+	posX = event.pageX;
+	posY = event.pageY;
+   
+	pos = new Array();
+	pos[0] = posX;
+	pos[1] = posY;
+	return pos;
+}
+
+function showMenuRow(event, itemId, rowId, checkboxId){
+
+	var tr_actions = "#" + rowId + "_actions";
+
+	var pos = getMousePosition(event);
+
+	gridLeft =  $("#search_results_{gridId}").offset().left;
+	gridTop =  $("#search_results_{gridId}").offset().top;
+
+	var top = pos[1] - 25; //(pos[1] - 50) - gridTop;
+	var left = pos[0] - 100;// - gridLeft;
+
+	//chequeo si nos salimos de la pantalla
+	var window_w = $(window).width();
+    var window_h = $(window).height();
+    var actions_h = $(tr_actions).height();
+    var actions_w = $(tr_actions).width();
+
+	//si el alto o el ancho es mayor al de la ventana,
+	//lo ajustamos y le ponemos un scroll.
+	if( actions_h  > window_h ){
+
+		top=0;
+		$(tr_actions).height(window_h);
+		$(tr_actions).css({"overflow":"scroll"});
+		
+	}
+
+	if( actions_w  > window_w ){
+
+		left=0;
+		$(tr_actions).width(window_w);
+		$(tr_actions).css({"overflow":"scroll"});
+		
+	}
+
+    var actions_h = $(tr_actions).height();
+    var actions_w = $(tr_actions).width();
+	
+	//ajustamos el ancho.
+	if( actions_w  > window_w ){
+		left=0;
+		$(tr_actions).height(window_w);
+	}
+	
+    //ajustamos el alto.
+	if( actions_h + top > window_h ){
+		top = window_h-actions_h;
+	}
+
+    //ajustamos el lateral derecho.
+	if( actions_w + left > window_w ){
+		left = window_w-actions_w;
+	}
+
+    //ajustamos el lateral izquierdo.
+	if( left < 0 ){
+		left = 0;
+	}
+
+	$(tr_actions).css( {"left":left, "top": top} );
+	$(tr_actions).show();
+   
+	
+}
+
+$(document).ready(function(){
+
+	$(".row_actions").hover(
+			function(){}, 
+			function(){
+				$(this).hide();
+			}
+	);
+	
+});
+
+</script>
 <div id="search_results_{gridId}">
 
 	<div class="grid_pages" id="paginator_{gridId}">
@@ -29,6 +130,7 @@
 			<!-- BEGIN: nextPage -->
 			<div class="pagination_btn">
 			<a href="#" title="{lbl_next}" onclick="{paginationCallback}({nextPage});return false;">&rarr;</a>
+			</div>
 			<!-- END: nextPage -->
 			
 			<!-- BEGIN: lastPage -->
@@ -36,7 +138,7 @@
 			<a href="#" title="{lbl_last}" onclick="{paginationCallback}({lastPage});return false;">&raquo;</a>
 			</div>
 			<!-- END: lastPage -->
-			</div>
+			
 		</div>
 
 		<div style="float: left; width: 100%"> 
@@ -103,16 +205,15 @@
 					</td>
 					<!-- END:checkbox -->
 					<!-- BEGIN: column -->
-					<td style="{column_style}" class="{column_class}" onclick="{selectRowCallback}( '{itemId}', 'row_{gridId}_{itemId}', 'item_{gridId}_{itemId}' );">{value}</td>
+					<td style="{column_style}" class="{column_class}" onclick="{selectRowCallback}(event, '{itemId}', 'row_{gridId}_{itemId}', 'item_{gridId}_{itemId}' );">{value}</td>
 					<!-- END: column -->
-					<!-- BEGIN: row_actions -->
-					<td style="display:none;" id="row_{gridId}_{itemId}_actions">
-						{actions}
-					</td>
-					<!-- END: row_actions -->
 				</tr>
+				<!-- BEGIN: row_actions -->
+				<tr class="row_actions" style="display:none; z-index:3000; position: fixed;" id="row_{gridId}_{itemId}_actions">
+					<td>{actions}</td>
+				</tr>
+				<!-- END: row_actions -->
 				</tbody>
-			
 				<!-- END: row -->
 			</table>
 			

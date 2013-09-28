@@ -47,6 +47,8 @@ class EntityGrid extends RastyComponent{
 	
 	private $filter;
 	
+	private $filterType;
+	
 	private $checkBoxes = true;
 	
 		
@@ -60,21 +62,27 @@ class EntityGrid extends RastyComponent{
 		
 		$xtpl->assign("gridId", $this->getId() );	
 		
-		//inicializamos el criteria.
-		$this->filter = $this->model->getFilter();
+		//generamos el filter a partir del type.
+	    $componentConfig = new ComponentConfig();
+	    $componentConfig->setId( "filter" );
+		$componentConfig->setType( $this->getFilterType() );
 		
-		
+	    $this->filter = ComponentFactory::buildByType($componentConfig, $this);
+	    
 		$this->filter->fill();
 		
-		$entities = $this->getService()->getEntities( $this->getFilter() );
-		$entitiesCount = $this->getService()->getEntitiesCount( $this->getFilter() );
+		$criteria = $this->filter->getCriteria();
+		
+		$entities = $this->getService()->getEntities( $criteria );
+		$entitiesCount = $this->getService()->getEntitiesCount( $criteria );
+		$entitiesPageCount = count($entities);
 		
 		$this->filter->save();
 		
 		$this->getModel()->setEntities( $entities );
 		$this->getModel()->setTotalRows( $entitiesCount );
 		
-		$this->renderPagination( $xtpl, $entitiesCount );
+		$this->renderPagination( $xtpl, $entitiesPageCount, $entitiesCount );
 		
 		$this->renderActions( $xtpl );
 
@@ -216,7 +224,7 @@ class EntityGrid extends RastyComponent{
         		$xtpl->assign('label', Locale::localize($oColumnModel->getLabel() ));
 				$xtpl->assign('group_levels', $rowspan);
 	            $xtpl->assign('orderField', $field);
-	            $xtpl->assign('orderLabel', $oColumnModel->getLabel());
+	            $xtpl->assign('orderLabel', $this->localize($oColumnModel->getLabel()));
 	            //$orderType = CdtUtils::getParam("orderType_$gridId", "DESC");
 	            $orderType = "";//$this->getFilter()->getOrderType();
 	            
@@ -244,7 +252,7 @@ class EntityGrid extends RastyComponent{
                		$field = $oFirstColumnModel->getField();
 
         			$xtpl->assign('orderField', $field);
-		            $xtpl->assign('orderLabel', $oFirstColumnModel->getLabel());
+		            $xtpl->assign('orderLabel', $this->localize($oFirstColumnModel->getLabel()));
 	            	$orderType = "";//$this->getFilter()->getOrderType();
 		            if ($orderType == "DESC")
 		                $orderType = "ASC";
@@ -281,7 +289,7 @@ class EntityGrid extends RastyComponent{
         					
                 		$xtpl->assign('label', Locale::localize( $oSubColumnModel->getLabel() ));
 						$xtpl->assign('orderField', $field);
-			            $xtpl->assign('orderLabel', $oSubColumnModel->getLabel());
+			            $xtpl->assign('orderLabel', $this->localize($oSubColumnModel->getLabel()));
 			            $orderType = "";// $this->getGrid()->getFilter()->getOrderType();
 			            if ($orderType == "DESC")
 			                $orderType = "ASC";
@@ -354,7 +362,7 @@ class EntityGrid extends RastyComponent{
 
         $model = $this->getModel();
 
-        $this->renderRowActions("", $xtpl);
+        //$this->renderRowActions("", $xtpl);
 
         foreach ($model->getEntities() as $item) {
             $this->renderRow($item, $xtpl);
@@ -395,12 +403,12 @@ class EntityGrid extends RastyComponent{
 	}
 
 	
-	public function renderPagination( XTemplate $xtpl, $totalRows) {
+	public function renderPagination( XTemplate $xtpl, $currentRows, $totalRows) {
 	
-		$filter = $this->getFilter();
+		$criteria = $this->getFilter()->getCriteria();
 		
-		$page = $filter->getPage();
-		$rowPerPage = $filter->getRowPerPage();
+		$page = $criteria->getPage();
+		$rowPerPage = $criteria->getRowPerPage();
 		
         if(empty($page))
         	$page = 1;
@@ -422,7 +430,7 @@ class EntityGrid extends RastyComponent{
 		$xtpl->assign("lbl_last",  $this->localize("entitygrid.pagination.last") );
 		
 		$xtpl->assign("rangeFrom",  $limitInferior );
-		$xtpl->assign("rangeTo",  $limitSuperior );
+		$xtpl->assign("rangeTo",  $currentRows );
 		$xtpl->assign("rangeOf",  $this->localize("entitygrid.pagination.of") );
 		
 		$xtpl->assign("firstPage",  $firstPage );
@@ -451,38 +459,27 @@ class EntityGrid extends RastyComponent{
 	public function renderRowActions( $item, XTemplate $xtpl) {
 
     	$model = $this->getModel();
-
-        $actions = $model->getRowActionsModel($item);
-        if (!empty($item))
-            $itemId = $model->getEntityId($item);
-        else
-            $itemId = "";
-
         
-        //TODO armo un menú con las actions.
-        $menuGroup = new MenuGroup();
-        
-        foreach ($actions as $oActionModel) {
+        $itemId = (!empty($item))?$model->getEntityId($item): "";
 
-        	$menuOption = new MenuOption();
-        	$menuOption->setLabel( $oActionModel->getLabel() );
-        	$menuOption->setPageName( "TurnosHome" );
-        	$menuOption->setImageSource( $this->getWebPath() . "css/images/turnos_48.png" );
-        	$menuGroup->addMenuOption( $menuOption );
-        	
-            //$this->renderRowAction($xtpl, $oActionModel, $itemId);
+        //armamos un menú con las opciones (si es que hay).
+        $menuGroups = $model->getMenuGroups($item);
+        
+        if( count($menuGroups) > 0 ){
+	        
+	        //generamos el menu a partir del type.
+		    $componentConfig = new ComponentConfig();
+		    $componentConfig->setId( "menu_$itemId" );
+			$componentConfig->setType( "Menu" );
+			
+		    $menu = ComponentFactory::buildByType($componentConfig, $this);
+	        $menu->setMenuGroups($menuGroups);
+	        
+	        $xtpl->assign("actions", $menu->render());
+	    	$xtpl->parse("main.row.row_actions");    	
         }
         
-        //generamos el menu a partir del type.
-	    $componentConfig = new ComponentConfig();
-	    $componentConfig->setId( "menu_$itemId" );
-		$componentConfig->setType( "Menu" );
-		
-	    $menu = ComponentFactory::buildByType($componentConfig, $this);
-        $menu->addMenuGroup($menuGroup);
-        $xtpl->assign("actions", $menu->render());
         
-        $xtpl->parse("main.row.row_actions");
     }
     
     protected function renderRowAction(XTemplate $xtpl, GridActionModel $oActionModel, $itemId) {
@@ -549,5 +546,15 @@ class EntityGrid extends RastyComponent{
 	public function setSelectRowCallback($selectRowCallback)
 	{
 	    $this->selectRowCallback = $selectRowCallback;
+	}
+
+	public function getFilterType()
+	{
+	    return $this->filterType;
+	}
+
+	public function setFilterType($filterType)
+	{
+	    $this->filterType = $filterType;
 	}
 }

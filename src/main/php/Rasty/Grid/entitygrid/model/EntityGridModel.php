@@ -3,6 +3,8 @@ namespace Rasty\Grid\entitygrid\model;
 
 use Rasty\utils\RastyUtils;
 use Rasty\utils\ReflectionUtils;
+use Rasty\conf\RastyConfig;
+use Rasty\i18n\Locale;
 
 /**
  * Modelo para la grilla
@@ -127,8 +129,11 @@ abstract class EntityGridModel{
 			foreach ($getters as $getter) {
 				$values[] = ReflectionUtils::doGetter( $anObject, trim($getter) );
 			}	
-					
-			return implode(" ", $values );
+
+			if( count($values)>1)
+				return implode(" ", $values );
+			else
+				return $values[0];	
 		}else{
 			return "empty $columnIndex";			
 		}
@@ -435,4 +440,23 @@ abstract class EntityGridModel{
 	{
 	    $this->hasCheckboxes = $hasCheckboxes;
 	}
+	
+	/**
+	 * opciones de menú dado el item
+	 * @param unknown_type $item
+	 */
+	public function getMenuGroups( $item ){
+	
+		return array();
+	}
+
+	public function localize($keyMessage){
+		return Locale::localize( $keyMessage );
+	}
+	
+	public function getWebPath(){
+		
+		return RastyConfig::getInstance()->getWebPath();
+	}
+	
 }
