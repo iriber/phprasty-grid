@@ -118,7 +118,7 @@ abstract class Filter extends Form{
 
 		$this->initDefaults();
 		
-		$xtpl->assign("model",  $this->getGridModelClazz() );
+		$xtpl->assign("model", urlencode($this->getGridModelClazz()) );
 
 		$xtpl->assign("filter",  $this->getType() );
 		

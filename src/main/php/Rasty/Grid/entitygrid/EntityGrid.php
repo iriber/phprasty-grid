@@ -514,7 +514,8 @@ class EntityGrid extends RastyComponent{
 
 	public function setModelClazz($modelClazz)
 	{
-	    $this->modelClazz = $modelClazz;
+		
+	    $this->modelClazz = urldecode( $modelClazz );
 	}
 
 	public function getSortCallback()
