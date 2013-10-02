@@ -9,18 +9,6 @@
 <script>
 function getMousePosition(event) {
 
-	//event = window.event || arguments.callee.caller.arguments[0];
-	/*
-	var _x;
-	var _y;
-
-	_x = event.clientX + document.body.scrollLeft;
-	_y = event.clientY + document.body.scrollTop;
-	
-	posX = event.screenX;
-	posY = event.screenY;
-*/
-
 	posX = event.pageX;
 	posY = event.pageY;
    
@@ -90,21 +78,26 @@ function showMenuRow(event, itemId, rowId, checkboxId){
 		left = 0;
 	}
 
+    /*
 	$(tr_actions).css( {"left":left, "top": top} );
 	$(tr_actions).show();
-   
-	
+	*/
+	var tr_actions = "#" + rowId + "_actions";
+	//$menu = $(tr_actions).html(); 
+	$menu = $("#" + rowId + "_actions td").html();
+	$("#grid_row_actions").html( $menu );
+	$("#grid_row_actions").css( {"left":left, "top": top} );
+	$("#grid_row_actions").show();
 }
 
 $(document).ready(function(){
 
-	$(".row_actions").hover(
+	$("#grid_row_actions").hover(
 			function(){}, 
 			function(){
 				$(this).hide();
 			}
 	);
-	
 });
 
 </script>
@@ -209,7 +202,7 @@ $(document).ready(function(){
 					<!-- END: column -->
 				</tr>
 				<!-- BEGIN: row_actions -->
-				<tr class="row_actions" style="display:none; z-index:3000; position: fixed;" id="row_{gridId}_{itemId}_actions">
+				<tr class="row_actions" style="display:none;" id="row_{gridId}_{itemId}_actions">
 					<td>{actions}</td>
 				</tr>
 				<!-- END: row_actions -->
@@ -227,4 +220,6 @@ $(document).ready(function(){
 		</div>
 	</div>
 </div>	
+<div id="grid_row_actions" style="display:none; z-index:3000; position: fixed;">
+</div>
 <!-- END:main -->

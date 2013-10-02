@@ -60,6 +60,10 @@ class EntityGrid extends RastyComponent{
 		$xtpl->assign("paginationCallback", $this->getPaginationCallback() );
 		$xtpl->assign("selectRowCallback", $this->getSelectRowCallback() );
 		
+		$id = $this->getId();
+		if( empty($id) )
+			$this->setId( "grid" . $this->getFilterType() );
+			
 		$xtpl->assign("gridId", $this->getId() );	
 		
 		//generamos el filter a partir del type.
