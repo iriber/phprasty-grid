@@ -7,87 +7,118 @@
 
 </style>
 <script>
-function getMousePosition(event) {
+function getMousePosition(event,tr_actions) {
 
-	posX = event.pageX;
-	posY = event.pageY;
-   
+	if( event.pageX != undefined ){
+		posX = event.pageX;
+		posY = event.pageY;
+	}else{
+		posX = event.clientX;
+		posY = event.clientY;	
+	}
+
 	pos = new Array();
 	pos[0] = posX;
 	pos[1] = posY;
+
 	return pos;
 }
 
 function showMenuRow(event, itemId, rowId, checkboxId){
 
 	var tr_actions = "#" + rowId + "_actions";
+	var td_actions = "#" + rowId + "_actions td";
 
-	var pos = getMousePosition(event);
+	var pos = getMousePosition(event, tr_actions);
 
 	gridLeft =  $("#search_results_{gridId}").offset().left;
 	gridTop =  $("#search_results_{gridId}").offset().top;
 
 	var top = pos[1] - 25; //(pos[1] - 50) - gridTop;
-	var left = pos[0] - 100;// - gridLeft;
+	var left = pos[0] -100;// - gridLeft;
 
-	//chequeo si nos salimos de la pantalla
-	var window_w = $(window).width();
-    var window_h = $(window).height();
-    var actions_h = $(tr_actions).height();
-    var actions_w = $(tr_actions).width();
 
-	//si el alto o el ancho es mayor al de la ventana,
-	//lo ajustamos y le ponemos un scroll.
-	if( actions_h  > window_h ){
+	//ajustamos la posición (no para IE porque tengo problemas)
+	if (navigator.userAgent.indexOf('MSIE') !=-1) {
+	   //TODO
+		var tr_actions = "#" + rowId + "_actions";
+		//$menu = $(tr_actions).html(); 
+		$menu = $("#" + rowId + "_actions td").html();
+		$("#grid_row_actions").html( $menu );
+		top = top - $("#grid_row_actions").height() + 50;
+		$("#grid_row_actions").css( {"left":left, "top": top} );
+		$("#grid_row_actions").show();
 
-		top=0;
-		$(tr_actions).height(window_h);
-		$(tr_actions).css({"overflow":"scroll"});
+
+	}else{
+
+		//chequeo si nos salimos de la pantalla
+		var window_w =  $(window).width();
+		var window_h = $(window).height();
+		var actions_h = $(tr_actions).height();
+		var actions_w = $(tr_actions).width();
+
+
+
+
+		//si el alto o el ancho es mayor al de la ventana,
+		//lo ajustamos y le ponemos un scroll.
+		if( actions_h  > window_h ){
+
+			top=0;
+			$(tr_actions).height(window_h);
+			$(tr_actions).css({"overflow":"scroll"});
 		
-	}
+		}
 
-	if( actions_w  > window_w ){
+		if( actions_w  > window_w ){
 
-		left=0;
-		$(tr_actions).width(window_w);
-		$(tr_actions).css({"overflow":"scroll"});
+			left=0;
+			$(tr_actions).width(window_w);
+			$(tr_actions).css({"overflow":"scroll"});
 		
-	}
+		}
 
-    var actions_h = $(tr_actions).height();
-    var actions_w = $(tr_actions).width();
+		var actions_h = $(tr_actions).height();
+		var actions_w = $(tr_actions).width();
 	
-	//ajustamos el ancho.
-	if( actions_w  > window_w ){
-		left=0;
-		$(tr_actions).height(window_w);
-	}
+		//ajustamos el ancho.
+		if( actions_w  > window_w ){
+			left=0;
+			$(tr_actions).height(window_w);
+		}
 	
-    //ajustamos el alto.
-	if( actions_h + top > window_h ){
-		top = window_h-actions_h;
+	    //ajustamos el alto.
+		if( actions_h + top > window_h ){
+			top = window_h-actions_h;
+		}
+
+	    //ajustamos el lateral derecho.
+		if( actions_w + left > window_w ){
+			left = window_w-actions_w;
+		}
+
+	    //ajustamos el lateral izquierdo.
+		if( left < 0 ){
+			left = 0;
+		}
+
+		var tr_actions = "#" + rowId + "_actions";
+		//$menu = $(tr_actions).html(); 
+		$menu = $("#" + rowId + "_actions td").html();
+		$("#grid_row_actions").html( $menu );
+		$("#grid_row_actions").css( {"left":left, "top": top} );
+		$("#grid_row_actions").show();
+
 	}
 
-    //ajustamos el lateral derecho.
-	if( actions_w + left > window_w ){
-		left = window_w-actions_w;
-	}
-
-    //ajustamos el lateral izquierdo.
-	if( left < 0 ){
-		left = 0;
-	}
 
     /*
 	$(tr_actions).css( {"left":left, "top": top} );
 	$(tr_actions).show();
 	*/
-	var tr_actions = "#" + rowId + "_actions";
-	//$menu = $(tr_actions).html(); 
-	$menu = $("#" + rowId + "_actions td").html();
-	$("#grid_row_actions").html( $menu );
-	$("#grid_row_actions").css( {"left":left, "top": top} );
-	$("#grid_row_actions").show();
+
+	
 }
 
 $(document).ready(function(){
